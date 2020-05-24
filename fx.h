@@ -57,5 +57,4 @@ typedef struct
 //#define MAP_XY MAP_XY_VERTICAL_BOTTOM_TOP
 #define MAP_XY MAP_XY_HORIZONTAL_TOP_BOTTOM
 
-void heat_map_update(heat_map_t *);
-void rgb_map_update(rgb_map_t *, const heat_map_t *);
+void fx_calc_fire(rgb_map_t *, heat_map_t *);
