@@ -10,6 +10,20 @@ typedef struct
     map_size_t width;
     map_size_t height;
     map_size_t size;
+} map_header_t;
+
+typedef struct
+{
+    map_header_t header;
+    void *data;
+} data_map_t;
+
+typedef struct
+{
+    map_size_t stride;
+    map_size_t width;
+    map_size_t height;
+    map_size_t size;
     uint8_t brightness;
     rgb_t color_correction;
     rgb_t temp_correction;

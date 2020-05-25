@@ -7,14 +7,14 @@
 static
 uint16_t rand8seed_ = 1337;
 
-static
+static inline
 uint8_t rand8(void)
 {
     rand8seed_ = rand8seed_ * ((uint16_t)2053) + ((uint16_t)13849);
     return ((uint8_t)(rand8seed_ & (uint16_t)0xFF)) + ((uint8_t)(rand8seed_ >> 8));
 }
 
-static
+static inline
 uint8_t rand8_bdry(uint8_t max)
 {
     uint16_t r = rand8();
