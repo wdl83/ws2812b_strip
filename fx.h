@@ -33,6 +33,7 @@ STATIC_ASSERT(sizeof(data_map_t) == 5);
 #define FX_NONE UINT8_C(0)
 #define FX_STATIC UINT8_C(1)
 #define FX_FIRE UINT8_C(2)
+#define FX_TORCH UINT8_C(3)
 
 /*
  * VERTICAL (BOTTOM->TOP) physical LED layout
@@ -63,3 +64,4 @@ STATIC_ASSERT(sizeof(data_map_t) == 5);
 #define MAP_XY MAP_XY_HORIZONTAL_TOP_BOTTOM
 
 void fx_calc_fire(rgb_map_t *, data_map_t *);
+void fx_calc_torch(rgb_map_t *, data_map_t *);

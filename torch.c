@@ -69,7 +69,7 @@ uint8_t torch_energy_quant(uint8_t energy)
     return ENERGY_QUANT(energy);
 };
 
-void torch_data_map_update(torch_energy_map_t *map)
+void torch_energy_map_update(torch_energy_map_t *map)
 {
     if(NULL == map) return;
     if(NULL == map->data) return;
