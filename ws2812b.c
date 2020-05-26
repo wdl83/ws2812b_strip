@@ -41,29 +41,29 @@ static
 void spi_complete_cb(uintptr_t user_data)
 {
     ws2812b_strip_t *strip = (ws2812b_strip_t *)user_data;
-    uint8_t *rgb = (uint8_t *)strip->rgb_map.led;
+    uint8_t *rgb = (uint8_t *)strip->rgb_map.rgb;
 
-    if(strip->flags.abort || strip->size == strip->idx)
+    if(strip->flags.abort || strip->rgb_size == strip->rgb_idx)
     {
         TMR2_CLK_DISABLE();
         SPI0_INT_DISABLE();
-        strip->flags.updated = strip->size == strip->idx;
+        strip->flags.updated = strip->rgb_size == strip->rgb_idx;
         strip->flags.aborted = strip->flags.abort;
-        strip->idx = 0;
+        strip->rgb_idx = 0;
         return;
     }
 
-    SPI0_WR(rgb[strip->idx]);
+    SPI0_WR(rgb[strip->rgb_idx]);
     /* tmr2 reset is required because SPI needs additional time for
      * data reload (this delay is not aligned to SPI clock) */
     TMR2_WR_CNTR(0);
-    ++strip->idx;
+    ++strip->rgb_idx;
 }
 
 void ws2812b_init(ws2812b_strip_t *strip)
 {
     strip->flags.value = 0;
-    strip->idx = 0;
+    strip->rgb_idx = 0;
 
     /* SPI_CLK = 16MHz (cpu_clk) / 128 (prescaler) = 125kHz ~ 8000ns (MAX delay)
      * T0H - SPI_CLK
@@ -109,6 +109,5 @@ void ws2812b_update(ws2812b_strip_t *strip)
 
 void ws2812b_clear(ws2812b_strip_t *strip)
 {
-    memset(strip->rgb_map.led, 0, strip->rgb_map.size * sizeof(rgb_t));
-    memset(strip->heat_map.data, 0, strip->heat_map.size * sizeof(uint8_t));
+    memset(strip->rgb_map.rgb, 0, strip->rgb_size);
 }

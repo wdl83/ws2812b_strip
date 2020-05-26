@@ -6,38 +6,29 @@
 
 typedef struct
 {
-    map_size_t stride;
-    map_size_t width;
-    map_size_t height;
-    map_size_t size;
-} map_header_t;
+    map_size_t stride; // 1
+    map_size_t width; // 1
+    map_size_t height; // 1
+} map_header_t; // 3
 
 typedef struct
 {
-    map_header_t header;
-    void *data;
-} data_map_t;
+    map_header_t header; // 3
+    rgb_t *rgb; // 2
+    uint8_t brightness; // 1
+    rgb_t color_correction; // 3
+    rgb_t temp_correction; // 3
+} rgb_map_t; // 12
+
+STATIC_ASSERT(sizeof(rgb_map_t) == 12);
 
 typedef struct
 {
-    map_size_t stride;
-    map_size_t width;
-    map_size_t height;
-    map_size_t size;
-    uint8_t brightness;
-    rgb_t color_correction;
-    rgb_t temp_correction;
-    rgb_t *led;
-} rgb_map_t;
+    map_header_t header; // 3
+    void *data; // 2
+} data_map_t; // 5
 
-typedef struct
-{
-    map_size_t stride;
-    map_size_t width;
-    map_size_t height;
-    map_size_t size;
-    uint8_t *data;
-} heat_map_t;
+STATIC_ASSERT(sizeof(data_map_t) == 5);
 
 #define FX_NONE UINT8_C(0)
 #define FX_STATIC UINT8_C(1)
@@ -71,4 +62,4 @@ typedef struct
 //#define MAP_XY MAP_XY_VERTICAL_BOTTOM_TOP
 #define MAP_XY MAP_XY_HORIZONTAL_TOP_BOTTOM
 
-void fx_calc_fire(rgb_map_t *, heat_map_t *);
+void fx_calc_fire(rgb_map_t *, data_map_t *);

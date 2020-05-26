@@ -21,6 +21,8 @@ uint8_t rand8_bdry(uint8_t max)
     return (uint8_t)((r * ((uint16_t)max)) >> 8);
 }
 
+typedef fire_heat_map_t heat_map_t;
+
 static
 rgb_t heat2color(uint8_t temp)
 {
@@ -68,9 +70,9 @@ void fire_heat_map_update(heat_map_t *map)
     if(NULL == map) return;
     if(NULL == map->data) return;
 
-    const map_size_t stride = map->stride;
-    const map_size_t h = map->height;
-    const map_size_t w = map->width;
+    const map_size_t stride = map->header.stride;
+    const map_size_t h = map->header.height;
+    const map_size_t w = map->header.width;
 
     const uint8_t cooling_offset = MIN(16, rand8_bdry(128));
     /* 1. random cooling */
@@ -135,11 +137,13 @@ void fire_rgb_map_update(rgb_map_t * rgb_map, const heat_map_t *heat_map)
             rgb_map->color_correction.B,
             rgb_map->temp_correction.B);
 
-    for(map_size_t i = 0; i < rgb_map->size; ++i)
+    const map_size_t len = rgb_map->header.width * rgb_map->header.height;
+
+    for(map_size_t i = 0; i < len; ++i)
     {
-        rgb_map->led[i] = heat2color(heat_map->data[i]);
-        rgb_map->led[i].R = SCALE8(rgb_map->led[i].R, coeff_R);
-        rgb_map->led[i].G = SCALE8(rgb_map->led[i].G, coeff_G);
-        rgb_map->led[i].B = SCALE8(rgb_map->led[i].B, coeff_B);
+        rgb_map->rgb[i] = heat2color(heat_map->data[i]);
+        rgb_map->rgb[i].R = SCALE8(rgb_map->rgb[i].R, coeff_R);
+        rgb_map->rgb[i].G = SCALE8(rgb_map->rgb[i].G, coeff_G);
+        rgb_map->rgb[i].B = SCALE8(rgb_map->rgb[i].B, coeff_B);
     }
 }
