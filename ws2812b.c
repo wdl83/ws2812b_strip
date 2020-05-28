@@ -111,3 +111,35 @@ void ws2812b_clear(ws2812b_strip_t *strip)
 {
     memset(strip->rgb_map.rgb, 0, strip->rgb_size);
 }
+
+void ws2812b_apply_correction(ws2812b_strip_t *strip)
+{
+    if(!strip) return;
+
+    rgb_map_t *rgb_map = &strip->rgb_map;
+
+    const uint8_t coeff_R =
+        COEFF8(
+            rgb_map->brightness,
+            rgb_map->color_correction.R,
+            rgb_map->temp_correction.R);
+    const uint8_t coeff_G =
+        COEFF8(
+            rgb_map->brightness,
+            rgb_map->color_correction.G,
+            rgb_map->temp_correction.G);
+    const uint8_t coeff_B =
+        COEFF8(
+            rgb_map->brightness,
+            rgb_map->color_correction.B,
+            rgb_map->temp_correction.B);
+
+    const map_size_t len = rgb_map->header.width * rgb_map->header.height;
+
+    for(map_size_t i = 0; i < len; ++i)
+    {
+        rgb_map->rgb[i].R = SCALE8(rgb_map->rgb[i].R, coeff_R);
+        rgb_map->rgb[i].G = SCALE8(rgb_map->rgb[i].G, coeff_G);
+        rgb_map->rgb[i].B = SCALE8(rgb_map->rgb[i].B, coeff_B);
+    }
+}

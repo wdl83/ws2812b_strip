@@ -45,3 +45,4 @@ STATIC_ASSERT(sizeof(ws2812b_strip_t) == 22);
 void ws2812b_init(ws2812b_strip_t *);
 void ws2812b_update(ws2812b_strip_t *);
 void ws2812b_clear(ws2812b_strip_t *);
+void ws2812b_apply_correction(ws2812b_strip_t *);
