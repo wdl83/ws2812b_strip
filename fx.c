@@ -15,6 +15,15 @@ void fx_calc_fire(rgb_map_t *rgb_map, data_map_t *data_map)
     fire_rgb_map_update(rgb_map, heat_map);
 }
 
+void fx_init_torch(data_map_t *data_map)
+{
+    if(!data_map) return;
+
+    torch_energy_map_t *energy_map = (torch_energy_map_t *)data_map;
+
+    torch_init(energy_map);
+}
+
 void fx_calc_torch(rgb_map_t *rgb_map, data_map_t *data_map)
 {
     if(!rgb_map) return;

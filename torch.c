@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <string.h>
 
 #if defined HOST
 #define PROGMEM
@@ -50,6 +51,7 @@ uint8_t rand8_bdry(uint8_t max)
 }
 
 typedef torch_energy_t energy_t;
+typedef torch_param_t param_t;
 
 #define ENERGY_LEVEL_NUM UINT8_C(32)
 
@@ -62,7 +64,6 @@ const uint8_t energy_quant_[ENERGY_LEVEL_NUM] PROGMEM =
 };
 
 #define ENERGY_QUANT(value) (pgm_read_byte(energy_quant_ + (value >> 3)))
-#define SPARK_THREASHOLD 16
 
 uint8_t torch_energy_quant(uint8_t energy)
 {
@@ -77,27 +78,28 @@ void torch_energy_map_update(torch_energy_map_t *map)
     const map_size_t stride = map->header.stride;
     const map_size_t h = map->header.height;
     const map_size_t w = map->header.width;
+    param_t *const param = map->param;
+    const uint8_t adjH = param->adjH;
+    const uint8_t adjV = param->adjV;
+    const uint8_t passive_preserve = param->passive_preserve;
 
     /* 1. random new energy sources at the 'bottom' */
     for(map_size_t x = 0; x < w; ++x)
     {
-        MAP_XY(map->data, stride, x, 0).mode = MODE_NONE;
+        TORCH_MODE_SET(param->mode, stride, x, 0, TORCH_MODE_NONE);
         // 100-120
-        MAP_XY(map->data, stride, x, 0).value = 100 + rand8_bdry(120);
+        MAP_XY(map->data, stride, x, 0) = 100 + rand8_bdry(120);
     }
 
     /* 2. random sparking on second row */
     for(map_size_t x = 0, y = 1; y < h && x < w; ++x)
     {
-        energy_t energy = MAP_XY(map->data, stride, x, y);
+        if(TORCH_MODE_SPARK == TORCH_MODE_GET(param->mode, stride, x, y)) continue;
+        if(param->spark_threshold < rand8_bdry(255)) continue;
 
-        if(MODE_SPARK == energy.mode) continue;
-        if(SPARK_THREASHOLD < rand8_bdry(255)) continue;
-
-        energy.mode = MODE_SPARK;
+        TORCH_MODE_SET(param->mode, stride, x, y, TORCH_MODE_SPARK);
         // 200-255
-        energy.value = 200 + rand8_bdry(55);
-        MAP_XY(map->data, stride, x, y) = energy;
+        MAP_XY(map->data, stride, x, y) = 200 + rand8_bdry(55);
     }
 
     /* 3.  */
@@ -106,87 +108,88 @@ void torch_energy_map_update(torch_energy_map_t *map)
         for(map_size_t x = 0; x < w; ++x)
         {
             energy_t energy = MAP_XY(map->data, stride, x, y);
+            uint8_t mode = TORCH_MODE_GET(param->mode, stride, x, y);
 
-            if(MODE_PASSIVE == energy.mode)
+            if(TORCH_MODE_PASSIVE == mode)
             {
                 /* absorb adjacent energy
                  * | adjL | x    | adjR |
                  * |      | adjB |      | */
                 if(0 < y)
                 {
-                    energy_t adjB =
-                        0 < y
-                        ? MAP_XY(map->data, stride, x, y - 1)
-                        : (energy_t){.value = 0, .mode = MODE_NONE};
+                    energy_t adjB = MAP_XY(map->data, stride, x, y - 1);
+                    energy_t adjL = MAP_XY(map->data, stride, 0 == x ? w - 1 : x - 1, y);
+                    energy_t adjR = MAP_XY(map->data, stride, w - 1 == x ? 0 : x + 1, y);
 
-                    energy_t adjL =
-                        MAP_XY(map->data, stride, 0 == x ? w - 1 : x - 1, y);
+                    // adjB mode
+                    adjB = SCALE8(adjB, adjH);
+                    adjL = SCALE8(adjL, adjV);
+                    adjR = SCALE8(adjR, adjV);
 
-                    energy_t adjR =
-                        MAP_XY(map->data, stride, w - 1 == x ? 0 : x + 1, y);
-
-                    adjB.value = SCALE8(adjB.value, 40);
-                    adjL.value = SCALE8(adjL.value, 35);
-                    adjR.value = SCALE8(adjR.value, 35);
-
-                    energy.value = SCALE8(energy.value, 128);
-                    energy.value = sadd8(energy.value, (adjL.value >> 1)  + (adjR.value >> 1));
-                    energy.value = sadd8(energy.value, adjB.value);
+                    energy = SCALE8(energy, passive_preserve);
+                    energy = sadd8(energy, (adjL >> 1)  + (adjR >> 1));
+                    energy = sadd8(energy, adjB);
                 }
             }
-            else if(MODE_SPARK == energy.mode)
+            else if(TORCH_MODE_SPARK == mode)
             {
-                energy.value = ssub8(energy.value, 40);
+                energy = ssub8(energy, adjV);
 
                 if(h - 1 > y)
                 {
                     // adjT
-                    MAP_XY(map->data, stride, x, y + 1).mode = MODE_TEMP;
+                    TORCH_MODE_SET(param->mode, stride, x, y + 1, TORCH_MODE_TEMP);
+                }
+                else if(h - 1 == y)
+                {
+                    mode = TORCH_MODE_PASSIVE;
                 }
             }
-            else if(MODE_TEMP == energy.mode)
+            else if(TORCH_MODE_TEMP == mode)
             {
                 if(0 < y)
                 {
                     energy_t adjB = MAP_XY(map->data, stride, x, y - 1);
 
-                    if(40 > adjB.value)
+                    if(adjV > adjB)
                     {
-                        adjB.mode = MODE_PASSIVE;
+                        TORCH_MODE_SET(param->mode, stride, x, y - 1, TORCH_MODE_PASSIVE);
                         MAP_XY(map->data, stride, x, y - 1) = adjB;
-                        energy.value = sadd8(energy.value, adjB.value);
-                        energy.value = SCALE8(energy.value, 200);
-                        energy.mode = MODE_SPARK;
+                        energy = sadd8(energy, adjB);
+                        energy = SCALE8(energy, 200);
+                        mode = TORCH_MODE_SPARK;
                     }
                     else
                     {
-                        energy.value = sadd8(energy.value, 40);
+                        energy = sadd8(energy, adjV);
                     }
                 }
             }
 
             MAP_XY(map->data, stride, x, y) = energy;
+            TORCH_MODE_SET(param->mode, stride, x, y, mode);
         }
     }
 }
 
+inline
 static
-rgb_t energy2color(energy_t energy)
+rgb_t energy2color(const param_t *const param, energy_t energy)
 {
-    if(250 < energy.value)
+    if(250 < energy)
     {
-        return (rgb_t){.R = 170, .G = 170, .B = energy.value};
+        return (rgb_t){.R = 170, .G = 170, .B = energy};
     }
-    else if(0 != energy.value)
+    else if(0 != energy)
     {
         uint8_t r = 10;
         uint8_t g = 0;
         uint8_t b = 0;
-        const uint8_t quantized = ENERGY_QUANT(energy.value);
+        const uint8_t quantized = ENERGY_QUANT(energy);
 
-        r = sadd8(r, SCALE8(180, quantized));
-        g = sadd8(g, SCALE8(20, quantized));
-        b = sadd8(b, SCALE8(0, quantized));
+        r = sadd8(r, SCALE8(param->color_coeff.R, quantized));
+        g = sadd8(g, SCALE8(param->color_coeff.G, quantized));
+        b = sadd8(b, SCALE8(param->color_coeff.B, quantized));
 
         return (rgb_t){.R = r, .G = g, .B = b};
     }
@@ -216,9 +219,29 @@ void torch_rgb_map_update(rgb_map_t * rgb_map, const torch_energy_map_t *map)
 
     for(map_size_t i = 0; i < len; ++i)
     {
-        rgb_map->rgb[i] = energy2color(map->data[i]);
+        rgb_map->rgb[i] = energy2color(map->param, map->data[i]);
         rgb_map->rgb[i].R = SCALE8(rgb_map->rgb[i].R, coeff_R);
         rgb_map->rgb[i].G = SCALE8(rgb_map->rgb[i].G, coeff_G);
         rgb_map->rgb[i].B = SCALE8(rgb_map->rgb[i].B, coeff_B);
     }
+}
+
+void torch_init(torch_energy_map_t *map)
+{
+    if(!map) return;
+    if(!map->param) return;
+
+    map->param->spark_threshold = 4;
+    map->param->adjH = 35;
+    map->param->adjV = 40;
+    map->param->passive_preserve = 120;
+    map->param->color_coeff.R = 180;
+    map->param->color_coeff.G = 20;
+    map->param->color_coeff.B = 0;
+
+    // mode is encoded 2 bits
+    memset(
+        map->param->mode,
+        TORCH_MODE_NONE,
+        (map->header.width >> 1) * (map->header.height >> 1));
 }

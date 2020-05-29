@@ -26,9 +26,10 @@ typedef struct
 {
     map_header_t header; // 3
     void *data; // 2
-} data_map_t; // 5
+    void *param; // 2
+} data_map_t; // 7
 
-STATIC_ASSERT(sizeof(data_map_t) == 5);
+STATIC_ASSERT(sizeof(data_map_t) == 7);
 
 #define FX_NONE UINT8_C(0)
 #define FX_STATIC UINT8_C(1)
@@ -64,4 +65,5 @@ STATIC_ASSERT(sizeof(data_map_t) == 5);
 #define MAP_XY MAP_XY_HORIZONTAL_TOP_BOTTOM
 
 void fx_calc_fire(rgb_map_t *, data_map_t *);
+void fx_init_torch(data_map_t *);
 void fx_calc_torch(rgb_map_t *, data_map_t *);
