@@ -87,8 +87,8 @@ void torch_energy_map_update(torch_energy_map_t *map)
     for(map_size_t x = 0; x < w; ++x)
     {
         TORCH_MODE_SET(param->mode, stride, x, 0, TORCH_MODE_NONE);
-        // 100-120
-        MAP_XY(map->data, stride, x, 0) = 100 + rand8_bdry(120);
+        // <100, 220>
+        MAP_XY(map->data, stride, x, 0) = 100 + rand8_bdry(121);
     }
 
     /* 2. random sparking on second row */
@@ -98,8 +98,8 @@ void torch_energy_map_update(torch_energy_map_t *map)
         if(param->spark_threshold < rand8_bdry(255)) continue;
 
         TORCH_MODE_SET(param->mode, stride, x, y, TORCH_MODE_SPARK);
-        // 200-255
-        MAP_XY(map->data, stride, x, y) = 200 + rand8_bdry(55);
+        // <200, 255>
+        MAP_XY(map->data, stride, x, y) = 200 + rand8_bdry(56);
     }
 
     /* 3.  */
@@ -122,9 +122,9 @@ void torch_energy_map_update(torch_energy_map_t *map)
                     energy_t adjR = MAP_XY(map->data, stride, w - 1 == x ? 0 : x + 1, y);
 
                     // adjB mode
-                    adjB = SCALE8(adjB, adjH);
-                    adjL = SCALE8(adjL, adjV);
-                    adjR = SCALE8(adjR, adjV);
+                    adjB = SCALE8(adjB, adjV);
+                    adjL = SCALE8(adjL, adjH);
+                    adjR = SCALE8(adjR, adjH);
 
                     energy = SCALE8(energy, passive_preserve);
                     energy = sadd8(energy, (adjL >> 1)  + (adjR >> 1));
