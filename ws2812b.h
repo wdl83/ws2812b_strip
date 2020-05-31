@@ -33,14 +33,14 @@ STATIC_ASSERT(sizeof(fx_data_map_t) == 7);
 
 typedef struct
 {
-    rgb_map_t rgb_map; // 12
+    rgb_map_t rgb_map; // 13
     uint16_t rgb_idx; // 2
     uint16_t rgb_size; // 2
     fx_data_map_t fx_data_map; // 7
     ws2812b_flags_t flags; // 1
-} ws2812b_strip_t; // 24
+} ws2812b_strip_t; // 25
 
-STATIC_ASSERT(sizeof(ws2812b_strip_t) == 24);
+STATIC_ASSERT(sizeof(ws2812b_strip_t) == 25);
 
 void ws2812b_init(ws2812b_strip_t *);
 void ws2812b_update(ws2812b_strip_t *);

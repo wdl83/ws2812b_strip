@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "rgb.h"
+#include "palette.h"
 
 typedef struct
 {
@@ -18,9 +19,10 @@ typedef struct
     uint8_t brightness; // 1
     rgb_t color_correction; // 3
     rgb_t temp_correction; // 3
-} rgb_map_t; // 12
+    palette_id_t palette_id; // 1
+} rgb_map_t; // 13
 
-STATIC_ASSERT(sizeof(rgb_map_t) == 12);
+STATIC_ASSERT(sizeof(rgb_map_t) == 13);
 
 typedef struct
 {
