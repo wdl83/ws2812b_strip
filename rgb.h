@@ -81,6 +81,7 @@ void rgb_seq_shift(rgb_t *begin, rgb_t *end);
 #define VALUE_G(x) ((uint8_t)((x) >> 8))
 #define VALUE_B(x) ((uint8_t)((x) >> 0))
 
+/* source: FastLED library */
 #define COLOR_CORRECTION_5050 0xFFB0F0ul /* 255, 176, 240 */
 #define COLOR_CORRECTION_None 0xFFFFFFul /* 255, 255, 255 */
 
@@ -107,7 +108,7 @@ void rgb_seq_shift(rgb_t *begin, rgb_t *end);
 
 /* this value will be used by default */
 #define RGB_AliceBlue 0xF0F8FFul
-#define RGB_Amethyst 0x9966CCul /* 153 102 204 */
+#define RGB_Amethyst 0x9966CCul
 #define RGB_AntiqueWhite 0xFAEBD7ul
 #define RGB_Aqua 0x00FFFFul
 #define RGB_Aquamarine 0x7FFFD4ul
@@ -132,10 +133,9 @@ void rgb_seq_shift(rgb_t *begin, rgb_t *end);
 #define RGB_DarkCyan 0x008B8Bul
 #define RGB_DarkGoldenrod 0xB8860Bul
 #define RGB_DarkGray 0xA9A9A9ul
-#define RGB_DarkGrey 0xA9A9A9ul
 #define RGB_DarkGreen 0x006400ul
 #define RGB_DarkKhaki 0xBDB76Bul
-#define RGB_DarkMagenta 0x8B008Bul /* 184, 0, 139 */
+#define RGB_DarkMagenta 0x8B008Bul
 #define RGB_DarkOliveGreen 0x556B2Ful
 #define RGB_DarkOrange 0xFF8C00ul
 #define RGB_DarkOrchid 0x9932CCul

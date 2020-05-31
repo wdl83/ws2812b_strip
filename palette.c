@@ -17,6 +17,7 @@ typedef struct
 const palette_t palette_[] PROGMEM =
 {
     {
+        /* Heat */
         .data =
         {
             (rgb_t){.R = 0x00, .G = 0x00, .B = 0x00},
@@ -35,6 +36,53 @@ const palette_t palette_[] PROGMEM =
             (rgb_t){.R = 0xFF, .G = 0xFF, .B = 0x99},
             (rgb_t){.R = 0xFF, .G = 0xFF, .B = 0xCC},
             (rgb_t){.R = 0xFF, .G = 0xFF, .B = 0xFF}
+        }
+    },
+    {
+        /* Laval */
+        .data =
+        {
+            (rgb_t){.R = 0x00, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x80, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x00, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x80, .G = 0x00, .B = 0x00},
+
+            (rgb_t){.R = 0x8B, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x80, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x8B, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x8B, .G = 0x00, .B = 0x00},
+
+            (rgb_t){.R = 0x8B, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0xFF, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0xFF, .G = 0xA5, .B = 0x00},
+            (rgb_t){.R = 0xFF, .G = 0xFF, .B = 0xFF},
+
+            (rgb_t){.R = 0xFF, .G = 0xA5, .B = 0x00},
+            (rgb_t){.R = 0xFF, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x8B, .G = 0x00, .B = 0x00},
+            (rgb_t){.R = 0x00, .G = 0x00, .B = 0x00}
+        }
+    },
+    {
+        /* Forest */
+        .data =
+        {
+            (rgb_t){.R = 0x00, .G = 0x64, .B = 0x00},
+            (rgb_t){.R = 0x00, .G = 0x64, .B = 0x00},
+            (rgb_t){.R = 0x55, .G = 0x6B, .B = 0x2F},
+            (rgb_t){.R = 0x00, .G = 0x64, .B = 0x00},
+            (rgb_t){.R = 0x00, .G = 0x80, .B = 0x00},
+            (rgb_t){.R = 0x22, .G = 0x8B, .B = 0x22},
+            (rgb_t){.R = 0x6B, .G = 0x8E, .B = 0x23},
+            (rgb_t){.R = 0x00, .G = 0x80, .B = 0x00},
+            (rgb_t){.R = 0x2E, .G = 0x8B, .B = 0x57},
+            (rgb_t){.R = 0x66, .G = 0xCD, .B = 0xAA},
+            (rgb_t){.R = 0x32, .G = 0xCD, .B = 0x32},
+            (rgb_t){.R = 0x9A, .G = 0xCD, .B = 0x32},
+            (rgb_t){.R = 0x90, .G = 0xEE, .B = 0x90},
+            (rgb_t){.R = 0x7C, .G = 0xFC, .B = 0x00},
+            (rgb_t){.R = 0x66, .G = 0xCD, .B = 0xAA},
+            (rgb_t){.R = 0x22, .G = 0x8B, .B = 0x22}
         }
     }
 };
