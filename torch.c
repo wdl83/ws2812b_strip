@@ -83,6 +83,8 @@ void torch_energy_map_update(torch_energy_map_t *map)
     const uint8_t adjH = param->adjH;
     const uint8_t adjV = param->adjV;
     const uint8_t passive_preserve = param->passive_preserve;
+    const uint8_t spark_preserve = param->spark_preserve;
+    const uint8_t spark_transfer = param->spark_transfer;
 
     /* 1. random new energy sources at the 'bottom' */
     for(map_size_t x = 0; x < w; ++x)
@@ -123,18 +125,18 @@ void torch_energy_map_update(torch_energy_map_t *map)
                     energy_t adjR = MAP_XY(map->data, stride, w - 1 == x ? 0 : x + 1, y);
 
                     // adjB mode
-                    adjB = SCALE8(adjB, adjV);
-                    adjL = SCALE8(adjL, adjH);
-                    adjR = SCALE8(adjR, adjH);
+                    uint8_t deltaLR =
+                        ((uint32_t)((uint16_t)adjL + (uint16_t)adjR) * adjH) >> 9;
+                    uint8_t deltaB = SCALE8(adjB, adjV);
 
                     energy = SCALE8(energy, passive_preserve);
-                    energy = sadd8(energy, (adjL >> 1)  + (adjR >> 1));
-                    energy = sadd8(energy, adjB);
+                    energy = sadd8(energy, deltaLR);
+                    energy = sadd8(energy, deltaB);
                 }
             }
             else if(TORCH_MODE_SPARK == mode)
             {
-                energy = ssub8(energy, adjV);
+                energy = ssub8(energy, spark_transfer);
 
                 if(h - 1 > y)
                 {
@@ -150,19 +152,18 @@ void torch_energy_map_update(torch_energy_map_t *map)
             {
                 if(0 < y)
                 {
-                    energy_t adjB = MAP_XY(map->data, stride, x, y - 1);
+                    const energy_t adjB = MAP_XY(map->data, stride, x, y - 1);
 
-                    if(adjV > adjB)
+                    if(spark_transfer > adjB)
                     {
                         TORCH_MODE_SET(param->mode, stride, x, y - 1, TORCH_MODE_PASSIVE);
-                        MAP_XY(map->data, stride, x, y - 1) = adjB;
                         energy = sadd8(energy, adjB);
-                        energy = SCALE8(energy, 200);
+                        energy = SCALE8(energy, spark_preserve);
                         mode = TORCH_MODE_SPARK;
                     }
                     else
                     {
-                        energy = sadd8(energy, adjV);
+                        energy = sadd8(energy, spark_transfer);
                     }
                 }
             }
@@ -251,14 +252,17 @@ void torch_init(torch_energy_map_t *map)
     map->param->spark_threshold = 4;
     map->param->adjH = 35;
     map->param->adjV = 40;
-    map->param->passive_preserve = 120;
+    map->param->passive_preserve = 0;
+    map->param->spark_transfer = 40;
+    map->param->spark_preserve = 200;
     map->param->color_coeff.R = 180;
     map->param->color_coeff.G = 20;
     map->param->color_coeff.B = 0;
 
     // mode is encoded 2 bits
+    // TODO: round-up
     memset(
         map->param->mode,
         TORCH_MODE_NONE,
-        (map->header.width >> 1) * (map->header.height >> 1));
+        (map->header.width * map->header.height) >> 2);
 }

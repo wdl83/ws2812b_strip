@@ -20,11 +20,13 @@ typedef struct
     uint8_t adjV;
     /* how much energy is preserved between cycles */
     uint8_t passive_preserve;
+    uint8_t spark_transfer;
+    uint8_t spark_preserve;
     rgb_t color_coeff;
     /* each element mode is encoded on 2 bits,
      * so length is dependent on number of elements */
     uint8_t mode[0];
-} torch_param_t; // 7
+} torch_param_t; // 9
 
 /* (y * stride + x) / 4 */
 #define TORCH_MODE_BYTE_OFFSET(stride, x, y) (((y) * (stride) + (x)) >> 2)
