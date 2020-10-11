@@ -143,3 +143,21 @@ void ws2812b_apply_correction(ws2812b_strip_t *strip)
         rgb_map->rgb[i].B = SCALE8(rgb_map->rgb[i].B, coeff_B);
     }
 }
+
+void ws2812b_power_on(ws2812b_strip_t *strip)
+{
+    if(!strip) return;
+    /* switch (PC.0) pin to output */
+    DDRC |= M1(DDC0);
+    /* switch (PC.0) pin to high (source current) */
+    PORTC |= M1(DDC0);
+}
+
+void ws2812b_power_off(ws2812b_strip_t *strip)
+{
+    if(!strip) return;
+    /* switch (PC.0) pin to low (disable pull-up) */
+    PORTC &= ~M1(DDC0);
+    /* switch (PC.0) pin to input */
+    DDRC &= ~M1(DDC0);
+}
