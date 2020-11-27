@@ -14,12 +14,12 @@ typedef struct
 
 typedef struct
 {
-    map_header_t header; // 3
-    rgb_t *rgb; // 2
-    uint8_t brightness; // 1
-    rgb_t color_correction; // 3
-    rgb_t temp_correction; // 3
-    palette_id_t palette_id; // 1
+    map_header_t header; // 3(0)
+    rgb_t *rgb; // 2(3)
+    uint8_t brightness; // 1(5)
+    rgb_t color_correction; // 3(6)
+    rgb_t temp_correction; // 3(9)
+    palette_id_t palette_id; // 1(12)
 } rgb_map_t; // 13
 
 STATIC_ASSERT(sizeof(rgb_map_t) == 13);

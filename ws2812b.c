@@ -62,7 +62,16 @@ void spi_complete_cb(uintptr_t user_data)
 
 void ws2812b_init(ws2812b_strip_t *strip)
 {
-    strip->flags.value = 0;
+    strip->flags =
+        (ws2812b_flags_t)
+        {
+            /* force strip update on init */
+            .update = 1,
+            .updated = 0,
+            .abort = 0,
+            .aborted = 0,
+            .fx = FX_NONE
+        };
     strip->rgb_idx = 0;
 
     /* SPI_CLK = 16MHz (cpu_clk) / 128 (prescaler) = 125kHz ~ 8000ns (MAX delay)
@@ -101,6 +110,7 @@ void ws2812b_update(ws2812b_strip_t *strip)
     strip->flags.updated = 0;
     strip->flags.abort = 0;
     strip->flags.aborted = 0;
+    SPI0_CLK_DIV_128();
     SPI0_INT_ENABLE();
     TMR2_CLK_DIV_1();
     spi_complete_cb((uintptr_t)strip);
