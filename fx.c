@@ -1,7 +1,8 @@
 #include <stddef.h>
 
-#include "fx.h"
 #include "fire.h"
+#include "fx.h"
+#include "noise.h"
 #include "torch.h"
 
 void fx_calc_fire(rgb_map_t *rgb_map, data_map_t *data_map)
@@ -33,4 +34,24 @@ void fx_calc_torch(rgb_map_t *rgb_map, data_map_t *data_map)
 
     torch_energy_map_update(energy_map);
     torch_rgb_map_update(rgb_map, energy_map);
+}
+
+void fx_init_noise(data_map_t *data_map)
+{
+    if(!data_map) return;
+
+    noise_energy_map_t *energy_map = (noise_energy_map_t *)data_map;
+
+    noise_init(energy_map);
+}
+
+void fx_calc_noise(rgb_map_t *rgb_map, data_map_t *data_map)
+{
+    if(!rgb_map) return;
+    if(!data_map) return;
+
+    noise_energy_map_t *energy_map = (noise_energy_map_t *)data_map;
+
+    noise_energy_map_update(energy_map);
+    noise_rgb_map_update(rgb_map, energy_map);
 }

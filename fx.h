@@ -19,7 +19,7 @@ typedef struct
     uint8_t brightness; // 1(5)
     rgb_t color_correction; // 3(6)
     rgb_t temp_correction; // 3(9)
-    palette_id_t palette_id; // 1(12)
+    palette16_id_t palette16_id; // 1(12)
 } rgb_map_t; // 13
 
 STATIC_ASSERT(sizeof(rgb_map_t) == 13);
@@ -33,10 +33,11 @@ typedef struct
 
 STATIC_ASSERT(sizeof(data_map_t) == 7);
 
-#define FX_NONE UINT8_C(0)
-#define FX_STATIC UINT8_C(1)
-#define FX_FIRE UINT8_C(2)
-#define FX_TORCH UINT8_C(3)
+#define FX_NONE                                                      UINT8_C(0x0)
+#define FX_STATIC                                                    UINT8_C(0x1)
+#define FX_FIRE                                                      UINT8_C(0x2)
+#define FX_TORCH                                                     UINT8_C(0x3)
+#define FX_NOISE                                                     UINT8_C(0x4)
 
 /*
  * VERTICAL (BOTTOM->TOP) physical LED layout
@@ -69,3 +70,5 @@ STATIC_ASSERT(sizeof(data_map_t) == 7);
 void fx_calc_fire(rgb_map_t *, data_map_t *);
 void fx_init_torch(data_map_t *);
 void fx_calc_torch(rgb_map_t *, data_map_t *);
+void fx_init_noise(data_map_t *);
+void fx_calc_noise(rgb_map_t *, data_map_t *);

@@ -66,7 +66,7 @@ void ws2812b_init(ws2812b_strip_t *strip)
         (ws2812b_flags_t)
         {
             /* force strip update on init */
-            .update = 1,
+            .update = 0,
             .updated = 0,
             .abort = 0,
             .aborted = 0,
@@ -75,6 +75,7 @@ void ws2812b_init(ws2812b_strip_t *strip)
     strip->rgb_idx = 0;
 
     /* SPI_CLK = 16MHz (cpu_clk) / 128 (prescaler) = 125kHz ~ 8000ns (MAX delay)
+     * SPI_CLK = 16MHz (cpu_clk) / 64 (prescaler) = 125kHz ~ 4000ns (MAX delay)
      * T0H - SPI_CLK
      * T0L - SPI_CLK
      * T1H - TMR2_PWM_CLK (HI duration TMR2 period ~ 500ns)
@@ -85,7 +86,6 @@ void ws2812b_init(ws2812b_strip_t *strip)
     /* switch MOSI (PB.3) & SCK (PB.5) & SS (PB.2) pins to output */
     DDRB |= M3(DDB5, DDB3, DDB2);
     SPI0_MASTER();
-    SPI0_CLK_DIV_128();
     SPI0_ENABLE();
 
     /* PWM TIMER - see timing requirements for ws2812b
@@ -98,8 +98,13 @@ void ws2812b_init(ws2812b_strip_t *strip)
     TMR2_MODE_FAST_PWM_TOP_OCRA();
     TMR2_MODE_FAST_PWM_OC2B_NON_INVERTING();
 
-    TMR2_WR_A(63); // 62.5ns * (63+1) = 4000ns = 4us (mesured)
+    //TMR2_WR_A(63); // 62.5ns * (63+1) = 4000ns = 4us (mesured)
+    TMR2_WR_A(31); // 62.5ns * (31+1) = 2000ns = 2us (mesured)
     TMR2_WR_B(4); // 62.5ns * (4+1) = 312.5ns (mesured)
+
+    // 4us/1bit, 32us/8bit + 10us IRQ, 96us + 30us = 126us/LED
+    // 1s/126us = 7936
+    // @60Hz: 7936/60 = 132LED@60Hz (max refresh rate)
 }
 
 void ws2812b_update(ws2812b_strip_t *strip)
@@ -110,7 +115,7 @@ void ws2812b_update(ws2812b_strip_t *strip)
     strip->flags.updated = 0;
     strip->flags.abort = 0;
     strip->flags.aborted = 0;
-    SPI0_CLK_DIV_128();
+    SPI0_CLK_DIV_64();
     SPI0_INT_ENABLE();
     TMR2_CLK_DIV_1();
     spi_complete_cb((uintptr_t)strip);

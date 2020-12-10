@@ -49,7 +49,6 @@ typedef struct
     torch_param_t *param; // 2
 } torch_energy_map_t; // 7
 
-uint8_t torch_energy_quant(uint8_t);
 void torch_energy_map_update(torch_energy_map_t *);
 void torch_rgb_map_update(rgb_map_t * rgb_map, const torch_energy_map_t *);
 void torch_init(torch_energy_map_t *);

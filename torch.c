@@ -10,52 +10,16 @@
 
 #include "palette.h"
 #include "torch.h"
+#include "util.h"
 
 /* torch simulation ideas from: https://github.com/plan44/messagetorch */
-
-#define MIN(x, y) (y < x ? y : x)
-#define MAX(x, y) (y > x ? y : x)
-
-static inline
-uint8_t sadd8(uint8_t value, uint8_t delta)
-{
-    return UINT8_MAX - value > delta ? value + delta : UINT8_MAX;
-}
-
-static inline
-uint8_t sadd8_bdry(uint8_t value, uint8_t delta, uint8_t max)
-{
-    return max - value > delta ? value + delta : max;
-}
-
-static inline
-uint8_t ssub8(uint8_t value, uint8_t delta)
-{
-    return value > delta ? value - delta : 0;
-}
-
-static
-uint16_t rand8seed_ = UINT16_C(1337);
-
-static inline
-uint8_t rand8(void)
-{
-    rand8seed_ = rand8seed_ * UINT16_C(2053) + UINT16_C(13849);
-    return ((uint8_t)(rand8seed_ & (uint16_t)0xFF)) + ((uint8_t)(rand8seed_ >> 8));
-}
-
-static inline
-uint8_t rand8_bdry(uint8_t max)
-{
-    uint16_t r = rand8();
-    return (uint8_t)((r * ((uint16_t)max)) >> 8);
-}
 
 typedef torch_energy_t energy_t;
 typedef torch_param_t param_t;
 
 #define ENERGY_LEVEL_NUM UINT8_C(32)
 
+static
 const uint8_t energy_quant_[ENERGY_LEVEL_NUM] PROGMEM =
 {
       0,  64,  96, 112, 128, 144, 152, 160,
@@ -65,11 +29,6 @@ const uint8_t energy_quant_[ENERGY_LEVEL_NUM] PROGMEM =
 };
 
 #define ENERGY_QUANT(value) (pgm_read_byte(energy_quant_ + (value >> 3)))
-
-uint8_t torch_energy_quant(uint8_t energy)
-{
-    return ENERGY_QUANT(energy);
-};
 
 void torch_energy_map_update(torch_energy_map_t *map)
 {
@@ -118,7 +77,7 @@ void torch_energy_map_update(torch_energy_map_t *map)
                 /* absorb adjacent energy
                  * | adjL | x    | adjR |
                  * |      | adjB |      | */
-                if(0 < y)
+                if(y)
                 {
                     energy_t adjB = MAP_XY(map->data, stride, x, y - 1);
                     energy_t adjL = MAP_XY(map->data, stride, 0 == x ? w - 1 : x - 1, y);
@@ -150,7 +109,7 @@ void torch_energy_map_update(torch_energy_map_t *map)
             }
             else if(TORCH_MODE_TEMP == mode)
             {
-                if(0 < y)
+                if(y)
                 {
                     const energy_t adjB = MAP_XY(map->data, stride, x, y - 1);
 
@@ -174,7 +133,6 @@ void torch_energy_map_update(torch_energy_map_t *map)
     }
 }
 
-inline
 static
 rgb_t energy2color(const param_t *const param, energy_t energy)
 {
@@ -198,12 +156,11 @@ rgb_t energy2color(const param_t *const param, energy_t energy)
     return (rgb_t){.R = 0, .G = 0, .B = 0};
 }
 
-
 void torch_rgb_map_update(rgb_map_t * rgb_map, const torch_energy_map_t *map)
 {
     const map_size_t len = rgb_map->header.width * rgb_map->header.height;
 
-    if(PALETTE_ID_INVALID == rgb_map->palette_id.value)
+    if(PALETTE16_ID_INVALID == rgb_map->palette16_id.value)
     {
 
         const uint8_t coeff_R =
@@ -236,8 +193,8 @@ void torch_rgb_map_update(rgb_map_t * rgb_map, const torch_energy_map_t *map)
         for(map_size_t i = 0; i < len; ++i)
         {
             rgb_map->rgb[i] =
-                palette_color(
-                    rgb_map->palette_id,
+                palette16_color(
+                    rgb_map->palette16_id,
                     SCALE8(map->data[i], 240),
                     rgb_map->brightness);
         }
@@ -252,7 +209,7 @@ void torch_init(torch_energy_map_t *map)
     map->param->spark_threshold = 4;
     map->param->adjH = 35;
     map->param->adjV = 40;
-    map->param->passive_preserve = 0;
+    map->param->passive_preserve = 120;
     map->param->spark_transfer = 40;
     map->param->spark_preserve = 200;
     map->param->color_coeff.R = 180;

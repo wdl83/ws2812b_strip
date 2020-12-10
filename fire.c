@@ -2,26 +2,7 @@
 
 #include "fire.h"
 #include "palette.h"
-
-#define MIN(x, y) (y < x ? y : x)
-#define MAX(x, y) (y > x ? y : x)
-
-static
-uint16_t rand8seed_ = 1337;
-
-static inline
-uint8_t rand8(void)
-{
-    rand8seed_ = rand8seed_ * ((uint16_t)2053) + ((uint16_t)13849);
-    return ((uint8_t)(rand8seed_ & (uint16_t)0xFF)) + ((uint8_t)(rand8seed_ >> 8));
-}
-
-static inline
-uint8_t rand8_bdry(uint8_t max)
-{
-    uint16_t r = rand8();
-    return (uint8_t)((r * ((uint16_t)max)) >> 8);
-}
+#include "util.h"
 
 typedef fire_heat_map_t heat_map_t;
 
@@ -125,7 +106,7 @@ void fire_rgb_map_update(rgb_map_t * rgb_map, const heat_map_t *heat_map)
 {
     const map_size_t len = rgb_map->header.width * rgb_map->header.height;
 
-    if(PALETTE_ID_INVALID == rgb_map->palette_id.value)
+    if(PALETTE16_ID_INVALID == rgb_map->palette16_id.value)
     {
         const uint8_t coeff_R =
             COEFF8(
@@ -157,8 +138,8 @@ void fire_rgb_map_update(rgb_map_t * rgb_map, const heat_map_t *heat_map)
         for(map_size_t i = 0; i < len; ++i)
         {
             rgb_map->rgb[i] =
-                palette_color(
-                    rgb_map->palette_id,
+                palette16_color(
+                    rgb_map->palette16_id,
                     SCALE8(heat_map->data[i], 240),
                     rgb_map->brightness);
         }
