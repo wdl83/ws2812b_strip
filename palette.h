@@ -16,6 +16,10 @@
 #define PALETTE16_ID_BHW3_30                                       UINT8_C(0x07)
 #define PALETTE16_ID_BHW4_028                                      UINT8_C(0x08)
 #define PALETTE16_ID_BHW4_062                                      UINT8_C(0x09)
+#define PALETTE16_ID_BHW1_31                                       UINT8_C(0x0A)
+#define PALETTE16_ID_BHW2_57                                       UINT8_C(0x0B)
+#define PALETTE16_ID_BHW1_04                                       UINT8_C(0x0C)
+#define PALETTE16_ID_BHW1_05                                       UINT8_C(0x0D)
 
 typedef struct
 {
