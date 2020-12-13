@@ -106,42 +106,27 @@ void fire_rgb_map_update(rgb_map_t * rgb_map, const heat_map_t *heat_map)
 {
     const map_size_t len = rgb_map->header.width * rgb_map->header.height;
 
-    if(PALETTE16_ID_INVALID == rgb_map->palette16_id.value)
-    {
-        const uint8_t coeff_R =
-            COEFF8(
-                rgb_map->brightness,
-                rgb_map->color_correction.R,
-                rgb_map->temp_correction.R);
-        const uint8_t coeff_G =
-            COEFF8(
-                rgb_map->brightness,
-                rgb_map->color_correction.G,
-                rgb_map->temp_correction.G);
-        const uint8_t coeff_B =
-            COEFF8(
-                rgb_map->brightness,
-                rgb_map->color_correction.B,
-                rgb_map->temp_correction.B);
+    const uint8_t coeff_R =
+        COEFF8(
+            rgb_map->brightness,
+            rgb_map->color_correction.R,
+            rgb_map->temp_correction.R);
+    const uint8_t coeff_G =
+        COEFF8(
+            rgb_map->brightness,
+            rgb_map->color_correction.G,
+            rgb_map->temp_correction.G);
+    const uint8_t coeff_B =
+        COEFF8(
+            rgb_map->brightness,
+            rgb_map->color_correction.B,
+            rgb_map->temp_correction.B);
 
-
-        for(map_size_t i = 0; i < len; ++i)
-        {
-            rgb_map->rgb[i] = heat2color(heat_map->data[i]);
-            rgb_map->rgb[i].R = SCALE8(rgb_map->rgb[i].R, coeff_R);
-            rgb_map->rgb[i].G = SCALE8(rgb_map->rgb[i].G, coeff_G);
-            rgb_map->rgb[i].B = SCALE8(rgb_map->rgb[i].B, coeff_B);
-        }
-    }
-    else
+    for(map_size_t i = 0; i < len; ++i)
     {
-        for(map_size_t i = 0; i < len; ++i)
-        {
-            rgb_map->rgb[i] =
-                palette16_color(
-                    rgb_map->palette16_id,
-                    SCALE8(heat_map->data[i], 240),
-                    rgb_map->brightness);
-        }
+        rgb_map->rgb[i] = heat2color(heat_map->data[i]);
+        rgb_map->rgb[i].R = SCALE8(rgb_map->rgb[i].R, coeff_R);
+        rgb_map->rgb[i].G = SCALE8(rgb_map->rgb[i].G, coeff_G);
+        rgb_map->rgb[i].B = SCALE8(rgb_map->rgb[i].B, coeff_B);
     }
 }
