@@ -190,6 +190,7 @@ void torch_init(torch_energy_map_t *map)
     if(!map) return;
     if(!map->param) return;
 
+#if 0
     map->param->spark_threshold = 4;
     map->param->adjH = 35;
     map->param->adjV = 40;
@@ -199,6 +200,7 @@ void torch_init(torch_energy_map_t *map)
     map->param->color_coeff.R = 180;
     map->param->color_coeff.G = 20;
     map->param->color_coeff.B = 0;
+#endif
 
     // mode is encoded 2 bits
     // TODO: round-up

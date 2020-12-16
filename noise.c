@@ -188,6 +188,8 @@ void noise_init(energy_map_t *map)
     map->param->rx = rand16();
     map->param->ry = rand16();
     map->param->speed = rand16();
+#if 0
     map->param->speed_step = 20;
     map->param->scale = 30;
+#endif
 }
