@@ -5,33 +5,28 @@
 #include "rgb.h"
 #include "palette.h"
 
-typedef struct
-{
-    map_size_t stride; // 1
-    map_size_t width; // 1
-    map_size_t height; // 1
-} map_header_t; // 3
+STATIC_ASSERT(sizeof(map_size_t) == 1);
 
 typedef struct
 {
-    map_header_t header; // 3(0)
-    rgb_t *rgb; // 2(3)
-    uint8_t brightness; // 1(5)
-    rgb_t color_correction; // 3(6)
-    rgb_t temp_correction; // 3(9)
-    palette16_id_t palette16_id; // 1(12)
-} rgb_map_t; // 13
+    map_size_t stride;
+    map_size_t width;
+    map_size_t height;
+} map_header_t;
 
-STATIC_ASSERT(sizeof(rgb_map_t) == 13);
+STATIC_ASSERT(sizeof(map_header_t) == 3);
 
 typedef struct
 {
-    map_header_t header; // 3
-    void *data; // 2
-    void *param; // 2
-} data_map_t; // 7
+    uint8_t brightness; // 0
+    rgb_t color_correction; // 1
+    rgb_t temp_correction; // 4
+    palette16_id_t palette16_id; // 7
+    map_header_t header; // 8
+    rgb_t rgb[0]; // 11
+} rgb_map_t;
 
-STATIC_ASSERT(sizeof(data_map_t) == 7);
+STATIC_ASSERT(sizeof(rgb_map_t) == 11);
 
 #define FX_NONE                                                      UINT8_C(0x0)
 #define FX_STATIC                                                    UINT8_C(0x1)
@@ -67,8 +62,8 @@ STATIC_ASSERT(sizeof(data_map_t) == 7);
 //#define MAP_XY MAP_XY_VERTICAL_BOTTOM_TOP
 #define MAP_XY MAP_XY_HORIZONTAL_TOP_BOTTOM
 
-void fx_calc_fire(rgb_map_t *, data_map_t *);
-void fx_init_torch(data_map_t *);
-void fx_calc_torch(rgb_map_t *, data_map_t *);
-void fx_init_noise(data_map_t *);
-void fx_calc_noise(rgb_map_t *, data_map_t *);
+void fx_calc_fire(rgb_map_t *, void *);
+void fx_init_torch(void *);
+void fx_calc_torch(rgb_map_t *, void *);
+void fx_init_noise(void *);
+void fx_calc_noise(rgb_map_t *, void *);

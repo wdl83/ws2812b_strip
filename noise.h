@@ -5,20 +5,22 @@
 
 typedef struct
 {
-    uint8_t speed_step;
-    uint8_t scale;
-    uint16_t rx;
-    uint16_t ry;
-    uint16_t speed;
-} noise_param_t;
+    map_header_t header;
+    uint8_t speed_step; // 3
+    uint8_t scale; // 4
+    uint16_t rx; // 5
+    uint16_t ry; // 7
+    uint16_t speed; // 9
+    energy_t energy[0]; // 11
+} noise_map_t;
 
-typedef struct
-{
-    map_header_t header; // 3
-    energy_t *data; // 2
-    noise_param_t *param; // 2
-} noise_energy_map_t; // 7
+STATIC_ASSERT_STRUCT_OFFSET(noise_map_t, header, 0);
 
-void noise_energy_map_update(noise_energy_map_t *);
-void noise_rgb_map_update(rgb_map_t *, const noise_energy_map_t *);
-void noise_init(noise_energy_map_t *);
+#define NOISE_MAP_SIZE(strip_len) \
+    ( \
+      sizeof(noise_map_t) \
+      + (strip_len))
+
+void noise_map_update(noise_map_t *);
+void noise_rgb_map_update(rgb_map_t *, const noise_map_t *);
+void noise_init(noise_map_t *);

@@ -82,7 +82,7 @@ int8_t grad8(uint8_t hash, int8_t x, int8_t y, int8_t z)
 {
     hash &= 0xF;
 
-    int8_t u = selectBasedOnHashBit( hash, 3, y, x);
+    int8_t u = selectBasedOnHashBit(hash, 3, y, x);
     int8_t v =
         hash < 4
         ? y
@@ -142,19 +142,16 @@ uint8_t noise8(uint16_t x, uint16_t y, uint16_t z)
     return sadd8(n, n); // 0..255
 }
 
-typedef noise_param_t param_t;
-typedef noise_energy_map_t energy_map_t;
-
-void noise_energy_map_update(energy_map_t *map)
+void noise_map_update(noise_map_t *map)
 {
     const map_size_t h = map->header.height;
     const map_size_t w = map->header.width;
     const map_size_t stride = map->header.stride;
-    const uint16_t rx = map->param->rx;
-    const uint16_t ry = map->param->ry;
-    const uint16_t speed = map->param->speed;
-    const uint16_t scale = map->param->scale;
-    energy_t *data = map->data;
+    const uint16_t rx = map->rx;
+    const uint16_t ry = map->ry;
+    const uint16_t speed = map->speed;
+    const uint16_t scale = map->scale;
+    energy_t *energy = map->energy;
 
     for(map_size_t y = 0; y < h; y++)
     {
@@ -163,13 +160,13 @@ void noise_energy_map_update(energy_map_t *map)
         for(map_size_t x = 0; x < w; x++)
         {
             uint16_t x_offset = scale * x;
-            MAP_XY(data, stride, x, y) = noise8(rx + x_offset, ry + y_offset, speed);
+            MAP_XY(energy, stride, x, y) = noise8(rx + x_offset, ry + y_offset, speed);
         }
     }
-    map->param->speed += map->param->speed_step;
+    map->speed += map->speed_step;
 }
 
-void noise_rgb_map_update(rgb_map_t * rgb_map, const energy_map_t *map)
+void noise_rgb_map_update(rgb_map_t * rgb_map, const noise_map_t *map)
 {
     if(PALETTE16_ID_INVALID == rgb_map->palette16_id.value) return;
 
@@ -179,17 +176,17 @@ void noise_rgb_map_update(rgb_map_t * rgb_map, const energy_map_t *map)
     for(map_size_t i = 0; i < len; ++i)
     {
         rgb_map->rgb[i] =
-            palette16_color(rgb_map->palette16_id, map->data[i], brightness);
+            palette16_color(rgb_map->palette16_id, map->energy[i], brightness);
     }
 }
 
-void noise_init(energy_map_t *map)
+void noise_init(noise_map_t *map)
 {
-    map->param->rx = rand16();
-    map->param->ry = rand16();
-    map->param->speed = rand16();
+    map->rx = rand16();
+    map->ry = rand16();
+    map->speed = rand16();
 #if 0
-    map->param->speed_step = 20;
-    map->param->scale = 30;
+    map->speed_step = 20;
+    map->scale = 30;
 #endif
 }

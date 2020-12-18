@@ -20,18 +20,24 @@ typedef union
     };
 
     uint8_t value;
-} ws2812b_flags_t; // 1
+} ws2812b_flags_t;
+
+STATIC_ASSERT(sizeof(ws2812b_flags_t) == 1);
 
 typedef struct
 {
-    rgb_map_t rgb_map; // 13
-    uint16_t rgb_idx; // 2
-    uint16_t rgb_size; // 2
-    data_map_t fx_data_map; // 7
-    ws2812b_flags_t flags; // 1
-} ws2812b_strip_t; // 25
+    ws2812b_flags_t flags; // 0
+    uint16_t rgb_idx; // 1
+    uint16_t rgb_size; // 3
+    rgb_map_t rgb_map; // 5
+} ws2812b_strip_t;
 
-STATIC_ASSERT(sizeof(ws2812b_strip_t) == 25);
+STATIC_ASSERT(sizeof(ws2812b_strip_t) == 5 + sizeof(rgb_map_t));
+
+#define WS2812B_STRIP_SIZE(strip_len) \
+    ( \
+      sizeof(ws2812b_strip_t) \
+     + (strip_len) * 3)
 
 void ws2812b_init(ws2812b_strip_t *);
 void ws2812b_update(ws2812b_strip_t *);
