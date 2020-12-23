@@ -15,10 +15,7 @@
 static
 uint8_t *mode_addr(torch_map_t *map)
 {
-    uint16_t offset =
-        (uint16_t)map->header.width
-        * (uint16_t)map->header.height;
-
+    uint16_t offset = map->header.width * map->header.height;
     return map->raw +  offset;
 }
 
@@ -210,7 +207,7 @@ void torch_init(torch_map_t *map)
     map->color_coeff.G = 20;
     map->color_coeff.B = 0;
 #endif
-    uint16_t size = (uint16_t)map->header.width * (uint16_t)map->header.height;
+    uint16_t size = map->header.width * map->header.height;
     energy_t *energy = energy_addr(map);
     uint8_t *mode = mode_addr(map);
 

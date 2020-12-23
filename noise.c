@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "noise.h"
 #include "util.h"
 
@@ -145,7 +147,6 @@ uint8_t noise8(uint16_t x, uint16_t y, uint16_t z)
 void noise_map_update(noise_map_t *map)
 {
     const map_size_t h = map->header.height;
-    const map_size_t w = map->header.width;
     const map_size_t stride = map->header.stride;
     const uint16_t rx = map->rx;
     const uint16_t ry = map->ry;
@@ -157,7 +158,7 @@ void noise_map_update(noise_map_t *map)
     {
         const uint16_t y_offset = scale * y;
 
-        for(map_size_t x = 0; x < w; x++)
+        for(map_size_t x = 0; x < stride; x++)
         {
             uint16_t x_offset = scale * x;
             MAP_XY(energy, stride, x, y) = noise8(rx + x_offset, ry + y_offset, speed);
@@ -170,13 +171,14 @@ void noise_rgb_map_update(rgb_map_t * rgb_map, const noise_map_t *map)
 {
     if(PALETTE16_ID_INVALID == rgb_map->palette16_id.value) return;
 
-    const map_size_t len = rgb_map->header.width * rgb_map->header.height;
+    const map_size_t size = rgb_map->header.stride * rgb_map->header.height;
+    const energy_t *energy = map->energy;
     const uint8_t brightness = rgb_map->brightness;
 
-    for(map_size_t i = 0; i < len; ++i)
+    for(map_size_t i = 0; i < size; ++i)
     {
         rgb_map->rgb[i] =
-            palette16_color(rgb_map->palette16_id, map->energy[i], brightness);
+            palette16_color(rgb_map->palette16_id, energy[i], brightness);
     }
 }
 
@@ -189,4 +191,5 @@ void noise_init(noise_map_t *map)
     map->speed_step = 20;
     map->scale = 30;
 #endif
+    memset(map->energy, 0, (uint16_t)(map->header.height * map->header.width) << 1);
 }
