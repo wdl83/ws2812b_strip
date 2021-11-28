@@ -166,6 +166,8 @@ void ws2812b_power_on(ws2812b_strip_t *strip)
     DDRC |= M1(DDC0);
     /* switch (PC.0) pin to high (source current) */
     PORTC |= M1(DDC0);
+    /* PB.2 SPI0/!SS high */
+    PORTB |= M1(DDB2);
 }
 
 void ws2812b_power_off(ws2812b_strip_t *strip)
@@ -175,4 +177,6 @@ void ws2812b_power_off(ws2812b_strip_t *strip)
     PORTC &= ~M1(DDC0);
     /* switch (PC.0) pin to input */
     DDRC &= ~M1(DDC0);
+    /* PB.2 SPI0/!SS low */
+    PORTB &= ~M1(DDB2);
 }
