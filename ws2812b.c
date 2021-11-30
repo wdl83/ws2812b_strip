@@ -47,6 +47,10 @@ void spi_complete_cb(uintptr_t user_data)
     {
         TMR2_CLK_DISABLE();
         SPI0_INT_DISABLE();
+
+        /* PB.2 SPI0/!SS low */
+        PORTB &= ~M1(DDB2);
+
         strip->flags.updated = strip->rgb_size == strip->rgb_idx;
         strip->flags.aborted = strip->flags.abort;
         strip->rgb_idx = 0;
@@ -115,6 +119,10 @@ void ws2812b_update(ws2812b_strip_t *strip)
     strip->flags.updated = 0;
     strip->flags.abort = 0;
     strip->flags.aborted = 0;
+
+    /* PB.2 SPI0/!SS high */
+    PORTB |= M1(DDB2);
+
     SPI0_CLK_DIV_64();
     SPI0_INT_ENABLE();
     TMR2_CLK_DIV_1();
@@ -166,8 +174,6 @@ void ws2812b_power_on(ws2812b_strip_t *strip)
     DDRC |= M1(DDC0);
     /* switch (PC.0) pin to high (source current) */
     PORTC |= M1(DDC0);
-    /* PB.2 SPI0/!SS high */
-    PORTB |= M1(DDB2);
 }
 
 void ws2812b_power_off(ws2812b_strip_t *strip)
@@ -177,6 +183,4 @@ void ws2812b_power_off(ws2812b_strip_t *strip)
     PORTC &= ~M1(DDC0);
     /* switch (PC.0) pin to input */
     DDRC &= ~M1(DDC0);
-    /* PB.2 SPI0/!SS low */
-    PORTB &= ~M1(DDB2);
 }

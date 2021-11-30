@@ -16,5 +16,6 @@ STATIC_ASSERT_STRUCT_OFFSET(fire_map_t, header, 0);
       sizeof(fire_map_t) \
      + (strip_len))
 
-void fire_map_update(fire_map_t *map);
-void fire_rgb_map_update(rgb_map_t * rgb_map, const fire_map_t *heat_map);
+void fire_init(fire_map_t *);
+void fire_map_update(fire_map_t *);
+void fire_rgb_map_update(rgb_map_t *, const fire_map_t *);

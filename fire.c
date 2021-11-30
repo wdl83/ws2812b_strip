@@ -4,6 +4,11 @@
 #include "palette.h"
 #include "util.h"
 
+void fire_init(fire_map_t *map)
+{
+    memset(map->energy, 0, map->header.width * map->header.height);
+}
+
 static
 rgb_t heat2color(energy_t temp)
 {

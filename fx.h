@@ -62,6 +62,7 @@ STATIC_ASSERT(sizeof(rgb_map_t) == 11);
 //#define MAP_XY MAP_XY_VERTICAL_BOTTOM_TOP
 #define MAP_XY MAP_XY_HORIZONTAL_TOP_BOTTOM
 
+void fx_init_fire(void *);
 void fx_calc_fire(rgb_map_t *, void *);
 void fx_init_torch(void *);
 void fx_calc_torch(rgb_map_t *, void *);

@@ -5,6 +5,13 @@
 #include "noise.h"
 #include "torch.h"
 
+void fx_init_fire(void *raw)
+{
+    fire_map_t *map = (fire_map_t *)raw;
+
+    fire_init(map);
+}
+
 void fx_calc_fire(rgb_map_t *rgb_map, void *raw)
 {
     fire_map_t *fire_map = (fire_map_t *)raw;
