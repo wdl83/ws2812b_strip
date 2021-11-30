@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <string.h>
 
 #include "fire.h"
 #include "palette.h"
