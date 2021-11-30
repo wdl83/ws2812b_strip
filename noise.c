@@ -171,14 +171,16 @@ void noise_rgb_map_update(rgb_map_t * rgb_map, const noise_map_t *map)
 {
     if(PALETTE16_ID_INVALID == rgb_map->palette16_id.value) return;
 
+    if(rgb_map->brightness > rgb_map->target_brightness) --rgb_map->brightness;
+    else if (rgb_map->brightness < rgb_map->target_brightness) ++rgb_map->brightness;
+
     const map_size_t size = rgb_map->header.stride * rgb_map->header.height;
     const energy_t *energy = map->energy;
-    const uint8_t brightness = rgb_map->brightness;
 
     for(map_size_t i = 0; i < size; ++i)
     {
         rgb_map->rgb[i] =
-            palette16_color(rgb_map->palette16_id, energy[i], brightness);
+            palette16_color(rgb_map->palette16_id, energy[i], rgb_map->brightness);
     }
 }
 

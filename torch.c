@@ -169,6 +169,9 @@ void torch_rgb_map_update(rgb_map_t * rgb_map, const torch_map_t *map)
     const map_size_t len = rgb_map->header.width * rgb_map->header.height;
     energy_t *energy = energy_addr((torch_map_t *)map);
 
+    if(rgb_map->brightness > rgb_map->target_brightness) --rgb_map->brightness;
+    else if (rgb_map->brightness < rgb_map->target_brightness) ++rgb_map->brightness;
+
     const uint8_t coeff_R =
         COEFF8(
             rgb_map->brightness,

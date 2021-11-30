@@ -106,6 +106,10 @@ void fire_map_update(fire_map_t *map)
 void fire_rgb_map_update(rgb_map_t * rgb_map, const fire_map_t *heat_map)
 {
     const uint16_t len = rgb_map->header.width * rgb_map->header.height;
+
+    if(rgb_map->brightness > rgb_map->target_brightness) --rgb_map->brightness;
+    else if (rgb_map->brightness < rgb_map->target_brightness) ++rgb_map->brightness;
+
     const uint8_t coeff_R =
         COEFF8(
             rgb_map->brightness,

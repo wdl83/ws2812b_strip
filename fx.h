@@ -19,14 +19,15 @@ STATIC_ASSERT(sizeof(map_header_t) == 3);
 typedef struct
 {
     uint8_t brightness; // 0
-    rgb_t color_correction; // 1
-    rgb_t temp_correction; // 4
-    palette16_id_t palette16_id; // 7
-    map_header_t header; // 8
-    rgb_t rgb[0]; // 11
+    uint8_t target_brightness; // 1
+    rgb_t color_correction; // 2
+    rgb_t temp_correction; // 5
+    palette16_id_t palette16_id; // 8
+    map_header_t header; // 9
+    rgb_t rgb[0]; // 12
 } rgb_map_t;
 
-STATIC_ASSERT(sizeof(rgb_map_t) == 11);
+STATIC_ASSERT(sizeof(rgb_map_t) == 12);
 
 #define FX_NONE                                                      UINT8_C(0x0)
 #define FX_STATIC                                                    UINT8_C(0x1)
