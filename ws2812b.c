@@ -1,14 +1,14 @@
+#include <stdio.h>
+#include <string.h>
+
 #include <avr/interrupt.h>
+
+#include <hw.h>
 
 #include <drv/assert.h>
 #include <drv/spi0.h>
-#include <drv/tmr2.h>
-
-#include <drv/usart0.h>
 #include <drv/tlog.h>
-
-#include <stdio.h>
-#include <string.h>
+#include <drv/tmr2.h>
 
 #include "fx.h"
 #include "ws2812b.h"
@@ -89,6 +89,8 @@ void ws2812b_init(ws2812b_strip_t *strip)
 
     /* switch MOSI (PB.3) & SCK (PB.5) & SS (PB.2) pins to output */
     DDRB |= M3(DDB5, DDB3, DDB2);
+    /* PB.2 SPI0/!SS low */
+    PORTB &= ~M1(DDB2);
     SPI0_MASTER();
     SPI0_ENABLE();
 
@@ -170,17 +172,44 @@ void ws2812b_apply_correction(ws2812b_strip_t *strip)
 void ws2812b_power_on(ws2812b_strip_t *strip)
 {
     if(!strip) return;
-    /* switch (PC.0) pin to output */
-    DDRC |= M1(DDC0);
-    /* switch (PC.0) pin to high (source current) */
-    PORTC |= M1(DDC0);
+
+    const hw_info_t hw = hw_info();
+
+    if(1 == hw.version)
+    {
+        /* switch (PC.0) pin to output */
+        DDRC |= M1(DDC0);
+        /* switch (PC.0) pin to high (source current) */
+        PORTC |= M1(DDC0);
+    }
+    else if(2 == hw.version)
+    {
+        /* switch (PB.0) pin to output */
+        DDRB |= M1(DDB0);
+        /* switch (PB.0) pin to high (source current) */
+        PORTB |= M1(DDB0);
+
+    }
 }
 
 void ws2812b_power_off(ws2812b_strip_t *strip)
 {
     if(!strip) return;
-    /* switch (PC.0) pin to low (disable pull-up) */
-    PORTC &= ~M1(DDC0);
-    /* switch (PC.0) pin to input */
-    DDRC &= ~M1(DDC0);
+
+    const hw_info_t hw = hw_info();
+
+    if(1 == hw.version)
+    {
+        /* switch (PC.0) pin to low (disable pull-up) */
+        PORTC &= ~M1(DDC0);
+        /* switch (PC.0) pin to input */
+        DDRC &= ~M1(DDC0);
+    }
+    else if(2 == hw.version)
+    {
+        /* switch (PB.0) pin to low (disable pull-up) */
+        PORTB &= ~M1(DDB0);
+        /* switch (PB.0) pin to input */
+        DDRB &= ~M1(DDB0);
+    }
 }
